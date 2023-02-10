@@ -9,6 +9,7 @@ using Colors, Plots
 using Statistics
 
 IMAGE_SIZE = 96
+IMAGE_HALFSIZE = 48
 COLOR_MAX = 255
 
 function transform_data(path::String)
@@ -20,11 +21,12 @@ function transform_data(path::String)
     ######################
 
     X = parse.(Float64, mapreduce(permutedims, vcat, split.(df.Image," ")))
-    X /= COLOR_MAX
+    X /= COLOR_MAX # scale to [0,1]
 
     select!(df, Not(:Image))
     
     Y = Matrix(df)
+    Y = (Y .- IMAGE_HALFSIZE) ./ IMAGE_HALFSIZE # scale to [-1,1]
     return X, Y
 end
 
@@ -37,6 +39,7 @@ function preview_image(X,Y,image_num; flip = true)
     # Reshaping keypoints
     current_keypoints = Y[image_num,:]
     current_keypoints = reshape(current_keypoints,2,15)
+    current_keypoints = (current_keypoints .* IMAGE_HALFSIZE) + IMAGE_HALFSIZE
 
     # Plot data
     plot(Gray.(reshape(current_image,IMAGE_SIZE,IMAGE_SIZE)))
