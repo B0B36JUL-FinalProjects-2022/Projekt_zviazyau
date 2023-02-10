@@ -25,3 +25,6 @@ Manifest.toml
 
 # Kaggle test and train data 
 kaggle_data/
+
+# Vscode data
+.vscode
