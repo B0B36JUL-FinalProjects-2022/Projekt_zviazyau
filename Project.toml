@@ -2,3 +2,11 @@ name = "Projekt_zviazyau"
 uuid = "a753ee82-12b6-48f8-999d-258496be43b0"
 authors = ["ezvezdov <ezvezdov22@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
