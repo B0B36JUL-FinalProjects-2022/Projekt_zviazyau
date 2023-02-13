@@ -34,7 +34,7 @@ function gradient(m::SimpleNet, x, y; ϵ=1e-10)
     z1 = m.W1*x .+ m.b1
     a1 = ReLU(z1) # 1st activation function is ReLU
     z2 = m.W2*a1 .+ m.b2
-    a2 = ReLU(z2) # 2nd activation function is id
+    a2 = id(z2) # 2nd activation function is id
 
     # Loss function is MSE
     loss = MSE(a2,y)
