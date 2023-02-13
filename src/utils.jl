@@ -7,6 +7,7 @@ IMAGE_SIZE = 96
 IMAGE_HALFSIZE = 48
 COLOR_MAX = 255
 
+""" Parse image date to float and scale image colors from [0,255] to [0,1] """
 function transform_image(df)
     X = parse.(Float64, mapreduce(permutedims, vcat, split.(df.Image," ")))
     X /= COLOR_MAX # scale to [0,1]
@@ -14,14 +15,14 @@ function transform_image(df)
     return X
 end
 
-
+""" Prepare train data. """
 function transform_train_data(path::String)
     df = DataFrame(CSV.File(path))
 
     df = dropmissing(df)
     # TODO: REMOVE
     ######################
-    df = first(df, 400)
+    # df = first(df, 400)
     ######################
     
     X = transform_image(df);
@@ -35,17 +36,19 @@ function transform_train_data(path::String)
     return X, y
 end
 
+""" Prepare test data. """
 function transform_test_data(path::String)
     df = DataFrame(CSV.File(path))
     # TODO: REMOVE
     ######################
-    df = first(df, 10)
+    # df = first(df, 10)
     ######################
     X = transform_image(df);
     return X
 end
 
-function preview_image(X,y,image_num; flip = true)
+""" Show image with corresponding facial keypoints. """
+function preview_image(X,y,image_num = 1; flip = true)
     
     # Reshaping an flipping image
     current_image = reshape(X[:,image_num],IMAGE_SIZE,IMAGE_SIZE);
