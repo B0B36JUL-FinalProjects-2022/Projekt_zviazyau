@@ -1,4 +1,4 @@
-export xavier_init, ReLU, d_ReLU, id, d_id, MSE, d_MSE
+export xavier_init, ReLU, d_ReLU, id, d_id, softplus, d_softplus, MSE, d_MSE
 
 using Distributions
 
@@ -11,11 +11,18 @@ ReLU(Z) = max.(0,Z)
 """ Derivative of ReLU activation function. """
 d_ReLU(Z) =  Z .> 0
 
-""" id activation function. """
+""" Identity activation function. """
 id(Z) = Z
 
-""" Derivative of id function. """
+""" Derivative of identity function. """
 d_id(Z) = ones(size(Z))
+
+""" Softplus activation function. """
+softplus(Z) = log.(1 .+ exp.(Z))
+
+""" Derivative of softplus activation function. """
+d_softplus(Z) = 1 ./ (1 .+ exp.(-Z))
+
 
 """ Mean Squared Error loss function. """
 MSE(a2,y) = sum((a2 .- y ).^2,dims=2) / size(y,2)
