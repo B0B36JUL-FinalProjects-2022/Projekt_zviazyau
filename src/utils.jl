@@ -18,14 +18,12 @@ end
 function transform_train_data(path::String)
     df = DataFrame(CSV.File(path))
 
+    df = dropmissing(df)
     # TODO: REMOVE
     ######################
-    df = first(df, 100)
+    df = first(df, 400)
     ######################
-
-    # X = parse.(Float64, mapreduce(permutedims, vcat, split.(df.Image," ")))
-    # X /= COLOR_MAX # scale to [0,1]
-    # X = X'
+    
     X = transform_image(df);
 
     select!(df, Not(:Image))
@@ -39,6 +37,10 @@ end
 
 function transform_test_data(path::String)
     df = DataFrame(CSV.File(path))
+    # TODO: REMOVE
+    ######################
+    df = first(df, 10)
+    ######################
     X = transform_image(df);
     return X
 end
