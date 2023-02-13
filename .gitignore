@@ -28,3 +28,6 @@ kaggle_data/
 
 # Vscode data
 .vscode
+
+# Saved networks
+saved_networks/
