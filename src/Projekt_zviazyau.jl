@@ -35,10 +35,12 @@ struct SimpleNet{T<:Real}
 end
 
 # Constructor for SimpleNet function with normal distribution initialization
-# SimpleNet(n1, n2, n3) = SimpleNet(randn(n2, n1), zeros(n2), randn(n3, n2), zeros(n3))
+# SimpleNet(n1, n2, n3) = SimpleNet(randn(n2, n1), randn(n2), randn(n3, n2), randn(n3))
 
 # Constructor for SimpleNet function with Xavier initialization
-SimpleNet(n1, n2, n3) = SimpleNet(rand(-sqrt(6/(n2+n1)):sqrt(6/(n2+n1)),n2,n1), zeros(n2), rand(-sqrt(6/(n3+n2)):sqrt(6/(n3+n2)),n3,n2), zeros(n3))
+using Distributions
+d = Truncated(Normal(0, 1), -sqrt(6/(9216+30)), sqrt(6/(9216+30)))  #Construct the distribution type
+SimpleNet(n1, n2, n3) = SimpleNet(rand(d,n2, n1), rand(d,n2), rand(d,n3, n2), rand(d,n3))
 
 # SimpleNet prediction functor
 function (m::SimpleNet)(x)
@@ -92,9 +94,10 @@ function simplenet_grad(m::SimpleNet, x, y; ϵ=1e-10)
 end
 
 function train(m,X_train,y_train;epoch = 1000)
-    alpha = 1e-2
+    alpha = 1e-5
     L = zeros(epoch)
 
+    println("MSE Start: ", sum(MSE(m(X_train),y_train)))
     for cur_epoch in 1:epoch
         grad = simplenet_grad(m,X_train,y_train)
         L[cur_epoch] = sum(grad[5])
