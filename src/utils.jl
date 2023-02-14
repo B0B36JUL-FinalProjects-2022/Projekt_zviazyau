@@ -46,35 +46,36 @@ function transform_train_data(path::String)
     df = DataFrame(CSV.File(path))
     samples_count = size(df,1)
 
-    df15 = dropmissing(df)
-    X15 = transform_image(df15);
-    select!(df15, Not(:Image))
-    y15 = trainsform_keypoints(df15)
+    df4 = deepcopy(df)
+    df11 = deepcopy(df)
 
-    df4 = df
+    keys4 = String[]
+    keys11 = String[]
     keypoinst_keys = keys(Keypoints_type)
     for key in keypoinst_keys
         # Remove column if more than 1% is missing
         if sum(ismissing.(df[:,key]))/samples_count > 1e-2
             select!(df4, Not(key))
-            continue
+            push!(keys11, key)
+
+        else
+            select!(df11, Not(key))
+            push!(keys4, key)
         end
-        println(key)
+        
     end
+
     df4 = dropmissing(df4)
     X4 = transform_image(df4)
     select!(df4, Not(:Image))
     y4 = trainsform_keypoints(df4)
 
-    # TODO: REMOVE
-    ######################
-    # df = first(df, 400)
-    ######################
-    # !maximum(ismissing.(mdf[1,:]))
-    
-    
+    df11 = dropmissing(df)
+    X11 = transform_image(df11);
+    select!(df11, Not(:Image))
+    y11 = trainsform_keypoints(df11)
 
-    return X15, y15, X4, y4
+    return X11, y11, keys11, X4, y4, keys4
 end
 
 """ Prepare test data. """
@@ -101,10 +102,6 @@ function make_submission(IdLookupTable_path::String,y)
     for i in 1:size(df,1)
         df[i,:].Location = y[:,df[i,:].ImageId][Keypoints_type[df[i,:].FeatureName]]
     end
-
-    # Remove unnecessary columns
-    select!(df, Not(:ImageId))
-    select!(df, Not(:FeatureName))
 
     # Save data to "kaggle_data" folder
     CSV.write("kaggle_data/submission.csv", df)
