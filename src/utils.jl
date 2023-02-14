@@ -33,25 +33,48 @@ function transform_image(df)
     return X
 end
 
+""" Transformate keypoinst data, scale data from [0,96] to [-1,1]. """
+function trainsform_keypoints(df)
+    y = Matrix(df)
+    y = (y .- IMAGE_HALFSIZE) ./ IMAGE_HALFSIZE # scale to [-1,1]
+    y = y'
+    return y
+end
+
 """ Prepare train data. """
 function transform_train_data(path::String)
     df = DataFrame(CSV.File(path))
+    samples_count = size(df,1)
 
-    df = dropmissing(df)
+    df15 = dropmissing(df)
+    X15 = transform_image(df15);
+    select!(df15, Not(:Image))
+    y15 = trainsform_keypoints(df15)
+
+    df4 = df
+    keypoinst_keys = keys(Keypoints_type)
+    for key in keypoinst_keys
+        # Remove column if more than 1% is missing
+        if sum(ismissing.(df[:,key]))/samples_count > 1e-2
+            select!(df4, Not(key))
+            continue
+        end
+        println(key)
+    end
+    df4 = dropmissing(df4)
+    X4 = transform_image(df4)
+    select!(df4, Not(:Image))
+    y4 = trainsform_keypoints(df4)
+
     # TODO: REMOVE
     ######################
     # df = first(df, 400)
     ######################
+    # !maximum(ismissing.(mdf[1,:]))
     
-    X = transform_image(df);
-
-    select!(df, Not(:Image))
     
-    y = Matrix(df)
-    y = (y .- IMAGE_HALFSIZE) ./ IMAGE_HALFSIZE # scale to [-1,1]
-    y = y'
 
-    return X, y
+    return X15, y15, X4, y4
 end
 
 """ Prepare test data. """
@@ -64,6 +87,7 @@ function transform_test_data(path::String)
     X = transform_image(df);
     return X
 end
+
 
 """ Make submission for kaggle Facial Keypoints Detection competition. """
 function make_submission(IdLookupTable_path::String,y)
@@ -95,7 +119,11 @@ function preview_image(X,y,image_num = 1; flip = true)
     
     # Reshaping keypoints
     current_keypoints = y[:,image_num]
-    current_keypoints = reshape(current_keypoints,2,15)
+    if length(current_keypoints) == 30
+        current_keypoints = reshape(current_keypoints,2,15)
+    else
+        current_keypoints = reshape(current_keypoints,2,4)
+    end
     current_keypoints = (current_keypoints .* IMAGE_HALFSIZE) .+ IMAGE_HALFSIZE
 
     # Plot data
