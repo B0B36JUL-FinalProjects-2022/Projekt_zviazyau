@@ -52,8 +52,7 @@ function gradient(m::SimpleNet, x, y; ϵ=1e-10)
 end
 
 """ Training SimpleNet via Gradient Descent. """ 
-function train(m::SimpleNet,X_train,y_train;epoch = 1000)
-    alpha = 1e-4
+function train(m::SimpleNet,X_train,y_train;epoch = 1000,alpha = 1e-3)
     L = zeros(epoch)
 
     for cur_epoch in 1:epoch
