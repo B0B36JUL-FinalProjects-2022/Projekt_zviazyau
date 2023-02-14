@@ -101,6 +101,10 @@ function make_submission(IdLookupTable_path::String,y, keys_all)
     # Scale back y to [0,96] and round to integer value
     y = (y .* IMAGE_HALFSIZE) .+ IMAGE_HALFSIZE
     y = round.(y)
+    # Some points may be -1 or 97 because of rounding, set 97 -> 96 and -1 -> 0
+    y = min.(y,96)
+    y = max.(y,0)
+
 
     # Transform data into DataFrame
     df_pred = DataFrame(y', keys_all)
@@ -111,6 +115,10 @@ function make_submission(IdLookupTable_path::String,y, keys_all)
         feature_name = row.FeatureName
         row.Location = df_pred[image_id,feature_name]
     end
+
+     # Remove unnecessary columns
+     select!(df, Not(:ImageId))
+     select!(df, Not(:FeatureName))
 
     # Save data to "kaggle_data" folder
     CSV.write("kaggle_data/submission.csv", df)
