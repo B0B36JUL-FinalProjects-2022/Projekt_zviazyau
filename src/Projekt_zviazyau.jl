@@ -5,6 +5,8 @@ include("nn_functions.jl")
 include("simplenet.jl")
 include("mediumnet.jl")
 
+export train
+
 """ Training neural network via Gradient Descent. """ 
 function train(m,X_train,y_train;epoch = 1000, alpha = 1e-3)
     L = zeros(epoch)
