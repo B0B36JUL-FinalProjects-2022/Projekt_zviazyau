@@ -58,28 +58,15 @@ function gradient(m::MediumNet, x, y; ϵ=1e-10)
     d_w1 = (d_z1 * x') / samples_amount
     d_b1 = sum(d_z1,dims=2) / samples_amount
 
-    return d_w1, d_b1, d_w2, d_b2, d_w3, d_b3, loss
+    return loss, d_w1, d_b1, d_w2, d_b2, d_w3, d_b3
 end
 
-""" Training MediumNet via Gradient Descent. """ 
-function train(m::MediumNet,X_train,y_train;epoch = 1000, alpha = 1e-3)
-    L = zeros(epoch)
-
-    for cur_epoch in 1:epoch
-        grad = gradient(m,X_train,y_train)
-        L[cur_epoch] = sum(grad[7])
-
-        # Update parameters
-        m.W1 .-= alpha*grad[1]
-        m.b1 .-= alpha*grad[2]
-        m.W2 .-= alpha*grad[3]
-        m.b2 .-= alpha*grad[4]
-        m.W3 .-= alpha*grad[5]
-        m.b3 .-= alpha*grad[6]
-
-        # Print simple training statistics
-        if cur_epoch % 50 == 0 || cur_epoch == 1
-            println("MSE: ", L[cur_epoch])
-        end
-    end
+function updata_parameters(m::MediumNet,grad,alpha)
+    # Update parameters
+    m.W1 .-= alpha*grad[2]
+    m.b1 .-= alpha*grad[3]
+    m.W2 .-= alpha*grad[4]
+    m.b2 .-= alpha*grad[5]
+    m.W3 .-= alpha*grad[6]
+    m.b3 .-= alpha*grad[7]
 end
