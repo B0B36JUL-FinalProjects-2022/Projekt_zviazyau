@@ -43,10 +43,11 @@ function gradient(m::SimpleNet, x, y; ϵ=1e-10)
     d_z2 = d_a2 .* d_id(a2)
     d_a1 = m.W2' * d_z2
     d_z1 = d_a1 .* d_ReLU(z1)
-    d_w2 = (d_z2 * a1') / samples_amount
-    d_b2 = sum(d_z2,dims=2) / samples_amount
-    d_w1 = (d_z1 * x') / samples_amount
-    d_b1 = sum(d_z1,dims=2) / samples_amount
+
+    d_w2 = (d_z2 * a1')
+    d_b2 = sum(d_z2,dims=2)
+    d_w1 = (d_z1 * x')
+    d_b1 = sum(d_z1,dims=2)
 
     return loss,d_w1, d_b1, d_w2, d_b2
 end
