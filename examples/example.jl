@@ -1,92 +1,79 @@
-# Basic script
 using Revise
 using Projekt_zviazyau
 
 using FileIO,JLD2
 
-train_path = "/home/ezvezdov/Programming/Projekt_zviazyau/kaggle_data/training.csv"
-test_path = "/home/ezvezdov/Programming/Projekt_zviazyau/kaggle_data/test.csv"
-
-X_train,y_train = transform_train_data(train_path)
-# preview_image(X_train,y_train,2)
-
-# simplenet = load("example.jld2","simplenet")
-simplenet = SimpleNet(size(X_train,1), 100, size(y_train,1))
-train(simplenet,X_train,y_train;epoch = 400)
-
-simplenet
-
-new_y = simplenet(X_train)
-preview_image(X_train,new_y,5)
-
-jldsave("example3.jld2"; simplenet)
+# Download data from and extract to /kaggle_data
+# https://www.kaggle.com/competitions/facial-keypoints-detection/data
 
 
-X_test = transform_test_data(test_path)
-y_test = nothing
-for img_num in 1:size(X_test,2)
-    global  y_test
-    if y_test == nothing
-        y_test = simplenet(X_test[:,img_num])
-    else
-        y_test = hcat(y_test,simplenet(X_test[:,img_num]))
-    end
-end
+# Set 
+train_path = "kaggle_data/training.csv"
+test_path = "kaggle_data/test.csv"
+IdLookupTable_path = "kaggle_data/IdLookupTable.csv"
 
-image_num = 4
+# Read data from CSV
+# X11_train,y11_train, keys11, X4_train,y4_train, keys4 = transform_train_data(train_path)
+# X_test = transform_test_data(test_path)
+
+# Read data from saved jld (kaggle_data folder)
+X11_train ,y11_train, keys11, X4_train,y4_train, keys4 = load("kaggle_data/train_data.jld2","X11_train","y11_train", "keys11", "X4_train","y4_train", "keys4")
+X_test = load("kaggle_data/test_data.jld2","X_test")
+
+# Save data to jld to kaggle_data folder
+jldsave("kaggle_data/test_data.jld2"; X_test)
+jldsave("kaggle_data/train_data.jld2"; X11_train,y11_train,keys11,X4_train,y4_train,keys4)
+
+# SIMPLENET
+#########################################################################
+# Simplenet for 11 keypoinst
+simplenet11 = load("saved_networks/simplenet11.jld2","simplenet11")
+simplenet11 = SimpleNet(size(X11_train,1), 100, size(y11_train,1))
+println("Training simplenet11")
+train(simplenet11,X11_train,y11_train;epoch = 400,alpha = 1e-3)
+jldsave("saved_networks/simplenet11.jld2"; simplenet11)
+
+# Simplenet for 4 keypoinst
+simplenet4 = load("saved_networks/simplenet4.jld2","simplenet4")
+simplenet4 = SimpleNet(size(X4_train,1), 100, size(y4_train,1))
+println("Training simplenet4")
+train(simplenet4,X4_train,y4_train;epoch = 400,alpha = 1e-3)
+jldsave("saved_networks/simplenet4.jld2"; simplenet4)
+
+# Make prediction 
+y4_test = simplenet4(X_test)
+y11_test = simplenet11(X_test)
+#########################################################################
+
+# MEDIUMNET
+#########################################################################
+# Mediumnet for 11 keypoinst
+mediumnet11 = load("saved_networks/mediumnet11.jld2","mediumnet11")
+mediumnet11 = MediumNet(size(X11_train,1), 200, 100, size(y11_train,1))
+println("Training mediumnet11")
+train(mediumnet11,X11_train,y11_train;epoch = 400,alpha = 1e-3)
+jldsave("saved_networks/mediumnet11.jld2"; mediumnet11)
+
+# Mediumnet for 4 keypoinst
+mediumnet4 = load("saved_networks/mediumnet4.jld2","mediumnet4")
+mediumnet4 = SimpleNet(size(X4_train,1), 100, size(y4_train,1))
+println("Training mediumnet4")
+train(mediumnet4,X4_train,y4_train;epoch = 400,alpha = 1e-3)
+jldsave("saved_networks/mediumnet4.jld2"; mediumnet4)
+
+# Make prediction 
+y4_test = mediumnet4(X_test)
+y11_test = mediumnet11(X_test)
+#########################################################################
+
+
+
+# Merge data
+y_test, keys_all = merge_data(y4_test,keys4, y11_test,keys11)
+
+# Make submission
+make_submission(IdLookupTable_path,y_test,keys_all)
+
+# Preview 10th image from testing set with predicted keypoints
+image_num = 10
 preview_image(X_test,y_test,image_num)
-
-
-# # initialize weights and biases
-# W1 = randn(9216, 100)
-# b1 = zeros(1, 100)
-# W2 = randn(100, 30)
-# b2 = zeros(1, 30)
-
-# # set learning rate and number of iterations
-# learning_rate = 0.01
-# num_iterations = 1000
-# X = X_train'
-# Y = y_train'
-
-# # loop over the specified number of iterations
-# for i = 1:num_iterations
-#     # forward propagation
-#     Z1 = X * W1 .+ b1
-#     A1 = max.(0, Z1)
-#     Z2 = A1 * W2 .+ b2
-#     A2 = Z2
-    
-#     # compute cost
-#     cost = sum((A2 - Y).^2)
-    
-#     # backward propagation
-#     dZ2 = 2 * (A2 - Y)
-#     dW2 = A1' * dZ2
-#     db2 = sum(dZ2, dims=1)
-#     dA1 = dZ2 * W2'
-#     dZ1 = dA1 .* (Z1 .> 0)
-#     dW1 = X' * dZ1
-#     db1 = sum(dZ1, dims=1)
-    
-#     # update parameters
-#     W1 = W1 .- learning_rate * dW1
-#     b1 = b1 .- learning_rate * db1
-#     W2 = W2 .- learning_rate * dW2
-#     b2 = b2 .- learning_rate * db2
-    
-#     # print cost every 100 iterations
-#     if i % 100 == 0
-#         println("Cost after iteration $i: $cost")
-#     end
-# end
-
-# using Colors
-# inessa = FileIO.load("/home/ezvezdov/Programming/Projekt_zviazyau/kaggle_data/inessa.png")
-# styopa = FileIO.load("/home/ezvezdov/Programming/Projekt_zviazyau/kaggle_data/styopa.png")
-# zhenya = FileIO.load("/home/ezvezdov/Programming/Projekt_zviazyau/kaggle_data/zhenya.png")
-# img = styopa
-# X = Float32.(Gray.(img))
-# X2 = reshape(X,9216)
-# y_test = simplenet(X2)
-# preview_image(X2,y_test,1)
