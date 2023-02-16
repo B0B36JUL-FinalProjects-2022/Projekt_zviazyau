@@ -93,7 +93,7 @@ end
 
 
 """ Make submission for kaggle Facial Keypoints Detection competition. """
-function make_submission(IdLookupTable_path::String,y, keys_all)
+function make_submission(IdLookupTable_path::String,y, keys_all; output_path = "kaggle_data/submission.csv")
     df = DataFrame(CSV.File(IdLookupTable_path))
     select!(df, Not(:Location)) # Remove Location column (because of missing)
     df[!,:Location] = zeros(size(df,1)) # Add new Location column with zeros
@@ -121,7 +121,7 @@ function make_submission(IdLookupTable_path::String,y, keys_all)
      select!(df, Not(:FeatureName))
 
     # Save data to "kaggle_data" folder
-    CSV.write("kaggle_data/submission.csv", df)
+    CSV.write(output_path, df)
 end
 
 """ Show image with corresponding facial keypoints. """
