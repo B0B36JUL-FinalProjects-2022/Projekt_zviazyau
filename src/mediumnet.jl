@@ -1,8 +1,5 @@
 export MediumNet
 
-using LinearAlgebra
-using Colors, Plots
-
 """ Simple Neural Network with 1 hidden dense layer """
 struct MediumNet{T<:Real}
     W1::Matrix{T}
@@ -32,9 +29,7 @@ function (m::MediumNet)(x)
 end
 
 """Backward propagation, searching for gradient for Gradient Descent method."""
-function gradient(m::MediumNet, x, y; ϵ=1e-10)
-    samples_amount = size(y,2)
-
+function gradient(m::MediumNet, x, y)
     z1 = m.W1*x .+ m.b1
     a1 = ReLU(z1) # 1st activation function is ReLU
     z2 = m.W2*a1 .+ m.b2
@@ -62,8 +57,8 @@ function gradient(m::MediumNet, x, y; ϵ=1e-10)
     return loss, d_w1, d_b1, d_w2, d_b2, d_w3, d_b3
 end
 
+""" Update parameters of mediumnet. """
 function updata_parameters(m::MediumNet,grad,alpha)
-    # Update parameters
     m.W1 .-= alpha*grad[2]
     m.b1 .-= alpha*grad[3]
     m.W2 .-= alpha*grad[4]

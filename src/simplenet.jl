@@ -1,8 +1,5 @@
 export SimpleNet
 
-using LinearAlgebra
-using Colors, Plots
-
 """ Simple Neural Network with 1 hidden dense layer """
 struct SimpleNet{T<:Real}
     W1::Matrix{T}
@@ -28,9 +25,7 @@ function (m::SimpleNet)(x)
 end
 
 """Backward propagation, searching for gradient for Gradient Descent method."""
-function gradient(m::SimpleNet, x, y; ϵ=1e-10)
-    samples_amount = size(y,2)
-
+function gradient(m::SimpleNet, x, y)
     z1 = m.W1*x .+ m.b1
     a1 = ReLU(z1) # 1st activation function is ReLU
     z2 = m.W2*a1 .+ m.b2
@@ -52,6 +47,7 @@ function gradient(m::SimpleNet, x, y; ϵ=1e-10)
     return loss,d_w1, d_b1, d_w2, d_b2
 end
 
+""" Update parameters of simplenet. """
 function updata_parameters(m::SimpleNet,grad,alpha)
     m.W1 .-= alpha*grad[2]
     m.b1 .-= alpha*grad[3]
