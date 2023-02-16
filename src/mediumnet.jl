@@ -1,4 +1,4 @@
-export MediumNet, train
+export MediumNet
 
 using LinearAlgebra
 using Colors, Plots

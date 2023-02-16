@@ -1,4 +1,4 @@
-export SimpleNet, train
+export SimpleNet
 
 using LinearAlgebra
 using Colors, Plots
