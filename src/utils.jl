@@ -34,7 +34,7 @@ function transform_image(df)
 end
 
 """ Transformate keypoinst data, scale data from [0,96] to [-1,1]. """
-function trainsform_keypoints(df)
+function transform_keypoints(df)
     y = Matrix(df)
     y = (y .- IMAGE_HALFSIZE) ./ IMAGE_HALFSIZE # scale to [-1,1]
     y = y'
@@ -67,12 +67,12 @@ function transform_train_data(path::String)
     df4 = dropmissing(df4)
     X4 = transform_image(df4)
     select!(df4, Not(:Image))
-    y4 = trainsform_keypoints(df4)
+    y4 = transform_keypoints(df4)
 
     df11 = dropmissing(df11)
     X11 = transform_image(df11);
     select!(df11, Not(:Image))
-    y11 = trainsform_keypoints(df11)
+    y11 = transform_keypoints(df11)
 
     return X11, y11, keys11, X4, y4, keys4
 end
