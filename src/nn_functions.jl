@@ -9,7 +9,7 @@ xavier_init(n_in,n_out; mu = 0, sigma = 1) = Truncated(Normal(mu, sigma), -sqrt(
 ReLU(Z) = max.(0,Z)
 
 """ Derivative of ReLU activation function. """
-d_ReLU(Z) =  Z .> 0
+d_ReLU(Z) =  Z .>= 0
 
 """ Identity activation function. """
 id(Z) = Z
@@ -28,4 +28,4 @@ d_softplus(Z) = 1 ./ (1 .+ exp.(-Z))
 MSE(a2,y) = sum((a2 .- y ).^2,dims=2) / size(y,2)
 
 """ Derivative of MSE function. """
-d_MSE(a2,y) = (2 *(a2 .- y))
+d_MSE(a2,y) = (2 *(a2 .- y)) / size(y,2)
