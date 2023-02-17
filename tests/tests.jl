@@ -33,12 +33,12 @@ TEST_IMG_AMOUNT = 1783
     end
 
     # Read data from CSV
-    # X11_train,y11_train, keys11, X4_train,y4_train, keys4 = transform_train_data(train_path)
-    # X_test = transform_test_data(test_path)
+    X11_train,y11_train, keys11, X4_train,y4_train, keys4 = transform_train_data(train_path)
+    X_test = transform_test_data(test_path)
 
     # Load data from jld
-    X11_train ,y11_train, keys11, X4_train,y4_train, keys4 = load("kaggle_data/train_data.jld2","X11_train","y11_train", "keys11", "X4_train","y4_train", "keys4")
-    X_test = load_object("kaggle_data/test_data.jld2")
+    # X11_train ,y11_train, keys11, X4_train,y4_train, keys4 = load("kaggle_data/train_data.jld2","X11_train","y11_train", "keys11", "X4_train","y4_train", "keys4")
+    # X_test = load_object("kaggle_data/test_data.jld2")
     
     @testset "utils.jl" begin
         train_path = "kaggle_data/training.csv"
