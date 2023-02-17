@@ -1,6 +1,8 @@
 using Projekt_zviazyau
 using Test
 using Random
+using FileIO,JLD2
+using CSV,DataFrames
 
 @testset "Projekt_zviazyau" begin
     @testset "nn_functions.jl" begin
@@ -27,8 +29,8 @@ using Random
     end
     
     @testset "utils.jl" begin
-        
         train_path = "kaggle_data/training.csv"
+        test_path = "kaggle_data/test.csv"
         
         img_pixels = 96*96
         keypoinst_amount = 30 
@@ -40,24 +42,44 @@ using Random
                     "right_eyebrow_inner_end_x","right_eyebrow_inner_end_y","right_eyebrow_outer_end_x","right_eyebrow_outer_end_y",
                     "nose_tip_x","nose_tip_y","mouth_left_corner_x","mouth_left_corner_y","mouth_right_corner_x","mouth_right_corner_y",
                     "mouth_center_top_lip_x","mouth_center_top_lip_y","mouth_center_bottom_lip_x","mouth_center_bottom_lip_y"]
+
+        # Read data from CSV
         X11_train,y11_train, keys11, X4_train,y4_train, keys4 = transform_train_data(train_path)
+        X_test = transform_test_data(test_path)
+
+        # Load data from jld
+        # X11_train ,y11_train, keys11, X4_train,y4_train, keys4 = load("kaggle_data/train_data.jld2","X11_train","y11_train", "keys11", "X4_train","y4_train", "keys4")
+        # X_test = load_object("kaggle_data/test_data.jld2")
     
         @testset "transform_train_data()" begin
+            # Test dimensions
             @test size(X11_train,1) == img_pixels
             @test size(X4_train,1) == img_pixels
             @test size(y4_train,1) + size(y11_train,1)== keypoinst_amount
+
+            # Test data range
+            @test maximum(X11_train) <= 1 && minimum(X11_train) >= 0
+            @test maximum(X4_train) <= 1 && minimum(X4_train) >= 0
+            @test maximum(y4_train) <= 1 && minimum(y4_train) >= -1
+            @test maximum(y11_train) <= 1 && minimum(y11_train) >= -1
         end
         @testset "transform_test_data()" begin
-            test_path = "kaggle_data/test.csv"
-            X_test = transform_test_data(test_path)
+            # Test dimensions
             @test size(X_test,1) == img_pixels
             @test size(X_test,2) == test_img_amount
             @test length(keys4) + length(keys11) == keypoinst_amount
+
+            # Test data range
+            @test maximum(X_test) <= 1 && minimum(X_test) >= 0
         end
         @testset "merge_data()" begin
-            y_test, keys_all = merge_data(y4_test,keys4, y11_test,keys11)
+            y11 = zeros(22,test_img_amount)
+            y4 = zeros(8,test_img_amount)
+            expected = zeros(keypoinst_amount,test_img_amount)
+            y, keys_all = merge_data(y11,keys11, y4,keys4)
+
             @test length(keys_all) == keypoinst_amount
-            @test size(y_test,1) == keypoinst_amount
+            @test y == expected
         end
         @testset "make_submission()" begin
             sample_submission_path = "kaggle_data/SampleSubmission.csv"
@@ -66,10 +88,10 @@ using Random
             
             y = zeros(keypoinst_amount,test_img_amount) .-1
             make_submission(IdLookupTable_path,y, keys_all; output_path = test_submission_path)
-
             test_submission = DataFrame(CSV.File(test_submission_path))
             sample_submission = DataFrame(CSV.File(sample_submission_path))
             
+            # Compare with sample submission
             @test test_submission == sample_submission
         end
     end      
