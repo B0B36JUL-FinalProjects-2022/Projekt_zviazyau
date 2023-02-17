@@ -48,7 +48,7 @@ function gradient(m::SimpleNet, x, y)
 end
 
 """ Update parameters of simplenet. """
-function updata_parameters(m::SimpleNet,grad,alpha)
+function update_parameters(m::SimpleNet,grad,alpha)
     m.W1 .-= alpha*grad[2]
     m.b1 .-= alpha*grad[3]
     m.W2 .-= alpha*grad[4]

@@ -58,7 +58,7 @@ function gradient(m::MediumNet, x, y)
 end
 
 """ Update parameters of mediumnet. """
-function updata_parameters(m::MediumNet,grad,alpha)
+function update_parameters(m::MediumNet,grad,alpha)
     m.W1 .-= alpha*grad[2]
     m.b1 .-= alpha*grad[3]
     m.W2 .-= alpha*grad[4]
