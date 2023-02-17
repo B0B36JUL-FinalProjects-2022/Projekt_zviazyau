@@ -2,6 +2,7 @@ export transform_train_data,transform_test_data,merge_data, make_submission, pre
 
 using CSV
 using DataFrames
+using Colors, Plots
 
 IMAGE_SIZE = 96
 IMAGE_HALFSIZE = 48
