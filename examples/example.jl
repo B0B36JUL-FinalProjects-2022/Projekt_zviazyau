@@ -4,7 +4,8 @@ using FileIO,JLD2
 
 # Download data from 
 # https://www.kaggle.com/competitions/facial-keypoints-detection/data
-# and extract to /kaggle_data
+# and extract to /kaggle_data.
+# test.zip and training.zip should be extracted to kaggle_data/ too.
 
 
 # Set file pathes
@@ -58,7 +59,7 @@ train(mediumnet11,X11_train,y11_train;epoch = 400,alpha = 1e-3)
 
 # Mediumnet for 4 keypoinst
 
-mediumnet4 = SimpleNet(size(X4_train,1), 100, size(y4_train,1))
+mediumnet4 = MediumNet(size(X4_train,1), 200,100, size(y4_train,1))
 # mediumnet4 = load_object("saved_networks/mediumnet4.jld2")
 train(mediumnet4,X4_train,y4_train;epoch = 400,alpha = 1e-3)
 # save_object("saved_networks/mediumnet4.jld2", mediumnet4)
